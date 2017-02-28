@@ -13,46 +13,32 @@ module GremlinClient
       timeout: 10
     )
       url = "ws://#{host}:#{port}"
+
+      gremlin = self
       WebSocket::Client::Simple.connect("ws://#{host}:#{port}/") do |ws|
         @ws = ws
 
         @ws.on :message do |msg|
-          puts "omgomgom"
-          pp msg
+          gremlin.receive_message(msg)
           @response=msg
         end
 
         @ws.on :error do |e|
-          puts 'om'
-          pp e
-          puts "omup"
           receive_error(e)
-        end
-
-        @ws.on :open do
-          puts 'connect'
-        end
-
-        @ws.on :close do
-          puts 'closing'
         end
       end
 
 
       @timeout = timeout
-      # to give time to connect
-      sleep 0.2
     end
 
 
-    def send(command)
+    def send(command, bindings={})
+      wait_connection
       reset_timer
-      unless open?
-        fail "not open yet"
-      end
-      @ws.send(build_message(command), { type: 'text' })
+      @ws.send(build_message(command, bindings), { type: 'text' })
       wait_response
-      return @response
+      return parse_response
     end
 
     def open?
@@ -64,41 +50,59 @@ module GremlinClient
     end
 
 
+    # this has to be public so the websocket client thread sees it
+    def receive_message(msg)
+      @response = JSON.parse(msg.data)
+    end
+
+    def receive_error(e)
+      @error = e
+    end
 
     protected
+
+      def wait_connection(w_timeout = 1)
+        w_from = Time.now.to_i
+        while !open? && Time.now.to_i - w_timeout < w_from
+          sleep 0.001
+        end
+      end
+
       def reset_timer
         @started_at = Time.now.to_i
+        @error = nil
         @response = nil
       end
 
       def wait_response
-        while @response.nil? and (Time.now.to_i - @started_at < @timeout)
-          sleep 0.1
+        while @response.nil? and @error.nil? && (Time.now.to_i - @started_at < @timeout)
+          sleep 0.001
         end
 
-        fail "Timeout!" if @response.nil?
+        fail ::GremlinClient::ServerError.new(nil, @error) unless @error.nil?
+        fail ::GremlinClient::ExecutionTimeout if @response.nil?
       end
 
-      def receive_message(msg)
-        @response = msg
+      # we validate our response here to make sure it is going to be
+      # raising exceptions in the right thread
+      def parse_response
+        unless @response['status']['code'] == 200
+          fail ::GremlinClient::ServerError.new(@response['status']['code'], @response['status']['message'])
+        end
+        @response['result']
       end
 
-      def receive_error(e)
-        raise "Received error: #{e}"
-      end
-
-      def build_message(command)
+      def build_message(command, bindings)
         message = {
           requestId: SecureRandom.uuid,
           op: 'eval',
           processor: '',
           args: {
             gremlin: command,
-            bindings: {},
+            bindings: bindings,
             language: 'gremlin-groovy'
           }
         }
-        puts JSON.generate(message)
         JSON.generate(message)
       end
 
