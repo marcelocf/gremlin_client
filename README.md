@@ -1,11 +1,14 @@
-# ruby-gremlin
-Gremlin client for the WebSocketChannelizer.
+# Ruby Gremlin Client
+Gremlin client in ruby for the WebSocketChannelizer.
 
 This client is not thread safe by itself! If you want to make it safer for your app, please make sure
 to use something like [ConnectionPool gem](https://github.com/mperham/connection_pool).
 
-
 ## Usage:
+
+```bash
+gem instal gremlin_client
+```
 
 ```ruby
 conn = GremlinClient.Connection.new(host: 'localhost', port:123)
