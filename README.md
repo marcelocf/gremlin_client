@@ -18,7 +18,7 @@ Alternativelly, you can use erb templates:
 resp = conn.templateSend("template.groovy.erb", {var1: 12})
 ```
 
-```groovy.erb
+```groovy
 g.V().has("something", <%= params[:var1] %>)
 ```
 
