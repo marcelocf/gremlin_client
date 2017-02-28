@@ -41,6 +41,10 @@ module GremlinClient
       return parse_response
     end
 
+    def send_file(filename, bindings={})
+      send(IO.read(filename), bindings)
+    end
+
     def open?
       @ws.open?
     end
