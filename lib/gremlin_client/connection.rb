@@ -40,6 +40,7 @@ module GremlinClient
 
       @timeout = timeout
       @groovy_script_path = groovy_script_path
+      @groovy_script_path = Pathname.new(@groovy_script_path) unless @groovy_script_path.is_a?(Pathname)
     end
 
 
@@ -122,7 +123,7 @@ module GremlinClient
 
       def resolve_path(filename)
         return filename if filename.is_a?(String) && filename[0,1] == '/'
-        "#{@groovy_script_path}/#{filename}"
+        @groovy_script_path.join(filename).to_s
       end
   end
 end
