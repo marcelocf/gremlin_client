@@ -6,7 +6,7 @@ require 'gremlin_client/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "gremlin_client"
-  spec.version       = Searrrch::VERSION
+  spec.version       = GremliClient::VERSION
   spec.authors       = ["Marcelo Coraça de Freitas"]
   spec.email         = ["marcelo.freitas@finc.com"]
   spec.summary       = %q{Simple Gremlin server client for the WebSocketChannelizer}
