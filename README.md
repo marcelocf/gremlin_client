@@ -9,16 +9,21 @@ to use something like [ConnectionPool gem](https://github.com/mperham/connection
 
 ```ruby
 conn = GremlinClient.Connection.new( host: 'ws://localhost:123')
-resp = conn.send("g.V().has('something', 'somevalue')");
+resp = conn.send("g.V().has('myVar', myValue)", {myValue: 'this_is_processed_by_gremlin_server'})
 ```
 
-Alternativelly, you can use erb templates:
+Alternativelly, you can use groovy files instead:
 
 ```ruby
-resp = conn.templateSend("template.groovy.erb", {var1: 12})
+resp = conn.file_send("template.groovy", {var1: 12})
 ```
 
 ```groovy
-g.V().has("something", <%= params[:var1] %>)
+g.V().has("something", var1)
 ```
 
+You can even specify the folder where to load those files in the constructor:
+
+```ruby
+conn = GremlinClient.Connection.new(groovy_script_path:  'scripts/groovy')
+```
