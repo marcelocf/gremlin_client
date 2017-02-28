@@ -8,7 +8,7 @@ to use something like [ConnectionPool gem](https://github.com/mperham/connection
 ## Usage:
 
 ```ruby
-conn = GremlinClient.new( host: 'ws://localhost:123')
+conn = GremlinClient.Connection.new( host: 'ws://localhost:123')
 resp = conn.send("g.V().has('something', 'somevalue')");
 ```
 
