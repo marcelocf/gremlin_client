@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gremlin_client (0.0.2)
+    gremlin_client (0.0.3)
       websocket-client-simple (~> 0.3)
 
 GEM
