@@ -6,4 +6,6 @@ require 'gremlin_client'
 
 conn = GremlinClient::Connection.new
 
-pp conn.send('g.V().count()')
+pp conn.send('1+2')
+
+conn.close

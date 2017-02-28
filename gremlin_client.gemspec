@@ -19,7 +19,9 @@ Gem::Specification.new do |spec|
   spec.rdoc_options  = ["--charset=UTF-8"]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'websocket-client-simple', '~> 0.3.0'
+  spec.add_dependency 'websocket-client-simple', '~> 0.3'
+  spec.add_dependency 'faye-websocket', '~> 0.10'
+  spec.add_dependency 'websocket-eventmachine-client'
 
   spec.add_development_dependency 'bundler', '~> 1.13'
   spec.add_development_dependency 'rake', '~> 12.0'
