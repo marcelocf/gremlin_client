@@ -5,6 +5,12 @@ module GremlinClient
 
     attr_reader :timeout, :groovy_script_path
 
+    class << self
+      # a centralized place for you to store a connection pool of those objects
+      # recommendeded one is: https://github.com/mperham/connection_pool
+      attr_accessor :pool
+    end
+
     # initialize a new connection using:
     #   host    => hostname/ip where to connect
     #   port    => listen port of the server
