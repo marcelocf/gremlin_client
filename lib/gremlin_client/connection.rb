@@ -80,7 +80,7 @@ module GremlinClient
         end
 
         fail ::GremlinClient::ServerError.new(nil, @error) unless @error.nil?
-        fail ::GremlinClient::ExecutionTimeout if @response.nil?
+        fail ::GremlinClient::ExecutionTimeoutError.new(@timeout) if @response.nil?
       end
 
       # we validate our response here to make sure it is going to be
