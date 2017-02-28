@@ -3,6 +3,8 @@ module GremlinClient
   # represents the connection to our gremlin server
   class Connection
 
+    attr_reader :timeout, :groovy_script_path
+
     # initialize a new connection using:
     #   host    => hostname/ip where to connect
     #   port    => listen port of the server
@@ -10,7 +12,8 @@ module GremlinClient
     def initialize(
       host: 'localhost',
       port: 8182,
-      timeout: 10
+      timeout: 10,
+      groovy_script_path: '.'
     )
       url = "ws://#{host}:#{port}"
 
@@ -30,6 +33,7 @@ module GremlinClient
 
 
       @timeout = timeout
+      @groovy_script_path = groovy_script_path
     end
 
 
@@ -42,7 +46,7 @@ module GremlinClient
     end
 
     def send_file(filename, bindings={})
-      send(IO.read(filename), bindings)
+      send(IO.read(resolve_path(filename)), bindings)
     end
 
     def open?
@@ -110,5 +114,9 @@ module GremlinClient
         JSON.generate(message)
       end
 
+      def resolve_path(filename)
+        return filename if filename.is_a?(String) && filename[0,1] == '/'
+        "#{@groovy_script_path}/#{filename}"
+      end
   end
 end
