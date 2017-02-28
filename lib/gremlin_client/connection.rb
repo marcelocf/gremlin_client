@@ -5,6 +5,21 @@ module GremlinClient
 
     attr_reader :timeout, :groovy_script_path
 
+    STATUS = {
+      success: 200,
+      no_content: 204,
+      partial_content: 206,
+
+      unauthorized: 401,
+      authenticate: 407,
+      malformed_request: 498,
+      invalid_request_arguents: 499,
+      server_error: 500,
+      script_evaluation_error: 597,
+      server_timeout: 598,
+      server_serialization_error: 599
+    }
+
     class << self
       # a centralized place for you to store a connection pool of those objects
       # recommendeded one is: https://github.com/mperham/connection_pool
@@ -101,7 +116,10 @@ module GremlinClient
       # we validate our response here to make sure it is going to be
       # raising exceptions in the right thread
       def parse_response
-        unless @response['status']['code'] == 200
+        # note that the partial_content status should be processed differently.
+        # look at http://tinkerpop.apache.org/docs/3.0.1-incubating/ for more info
+        ok_status = [:success, :no_content, :partial_content].map { |st| STATUS[st] }
+        unless ok_status.include?(@response['status']['code'])
           fail ::GremlinClient::ServerError.new(@response['status']['code'], @response['status']['message'])
         end
         @response['result']
