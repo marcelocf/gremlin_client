@@ -19,12 +19,12 @@ Gem::Specification.new do |spec|
   spec.rdoc_options  = ["--charset=UTF-8"]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "websocket-client-simple"
+  spec.add_dependency 'websocket-client-simple', '~> 0.3.0'
 
-  spec.add_development_dependency "bundler", "~> 1.13"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec", "~> 3.5"
-  spec.add_development_dependency "guard-rspec"
-  spec.add_development_dependency "rubocop"
-  spec.add_development_dependency "coveralls"
+  spec.add_development_dependency 'bundler', '~> 1.13'
+  spec.add_development_dependency 'rake', '~> 12.0'
+  spec.add_development_dependency 'rspec', '~> 3.5'
+  spec.add_development_dependency 'guard-rspec', '~> 4.7'
+  spec.add_development_dependency 'rubocop', '~> 0.47'
+  spec.add_development_dependency 'coveralls', '~> 0.8'
 end
