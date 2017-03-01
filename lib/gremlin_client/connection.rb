@@ -13,7 +13,7 @@ module GremlinClient
       unauthorized: 401,
       authenticate: 407,
       malformed_request: 498,
-      invalid_request_arguents: 499,
+      invalid_request_arguments: 499,
       server_error: 500,
       script_evaluation_error: 597,
       server_timeout: 598,
