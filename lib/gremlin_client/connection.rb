@@ -98,6 +98,7 @@ module GremlinClient
         while !open? && Time.now.to_i - @connection_timeout < w_from
           sleep 0.001
         end
+        fail ::GremlinClient::ConnectionTimeoutError.new(@connection_timeout) unless open?
       end
 
       def reset_timer

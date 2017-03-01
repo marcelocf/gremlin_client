@@ -137,6 +137,17 @@ RSpec.describe :connection do
     expect(conn.instance_variable_get('@error')).to eq(:this_is_a_bad_error)
   end
 
-  it :wait_connectino do
+  describe :wait_connection do
+    it :timeouts do
+      conn = GremlinClient::Connection.new
+      expect(conn).to receive(:open?).and_return(false).at_least(:once)
+      expect{conn.send(:wait_connection)}.to raise_exception(::GremlinClient::ConnectionTimeoutError)
+    end
+
+    it :success do
+      conn = GremlinClient::Connection.new
+      expect(conn).to receive(:open?).and_return(true).twice
+      conn.send(:wait_connection)
+    end
   end
 end
