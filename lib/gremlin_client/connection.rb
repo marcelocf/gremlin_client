@@ -3,7 +3,7 @@ module GremlinClient
   # represents the connection to our gremlin server
   class Connection
 
-    attr_reader :timeout, :groovy_script_path
+    attr_reader :connection_timeout, :timeout, :groovy_script_path
 
     STATUS = {
       success: 200,
@@ -33,6 +33,7 @@ module GremlinClient
     def initialize(
       host: 'localhost',
       port: 8182,
+      connection_timeout: 1,
       timeout: 10,
       groovy_script_path: '.'
     )
@@ -52,6 +53,7 @@ module GremlinClient
       end
 
 
+      @connection_timeout = connection_timeout
       @timeout = timeout
       @groovy_script_path = groovy_script_path
       @groovy_script_path = Pathname.new(@groovy_script_path) unless @groovy_script_path.is_a?(Pathname)
@@ -91,9 +93,9 @@ module GremlinClient
 
     protected
 
-      def wait_connection(w_timeout = 1)
+      def wait_connection
         w_from = Time.now.to_i
-        while !open? && Time.now.to_i - w_timeout < w_from
+        while !open? && Time.now.to_i - @connection_timeout < w_from
           sleep 0.001
         end
       end

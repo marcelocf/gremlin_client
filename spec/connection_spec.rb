@@ -49,6 +49,13 @@ RSpec.describe :connection do
       expect(conn.groovy_script_path).to eq(Pathname.new('/etc/groovy'))
     end
 
+    it :connection_timeout do
+      conn = GremlinClient::Connection.new
+      expect(conn.connection_timeout).to eq(1)
+      conn = GremlinClient::Connection.new(connection_timeout: 11)
+      expect(conn.connection_timeout).to eq(11)
+    end
+
     it :timeout do
       conn = GremlinClient::Connection.new
       expect(conn.timeout).to eq(10)
@@ -124,4 +131,12 @@ RSpec.describe :connection do
     end
   end
 
+  it :receive_error do
+    conn = GremlinClient::Connection.new
+    conn.receive_error(:this_is_a_bad_error)
+    expect(conn.instance_variable_get('@error')).to eq(:this_is_a_bad_error)
+  end
+
+  it :wait_connectino do
+  end
 end
