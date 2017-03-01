@@ -27,7 +27,7 @@ resp = conn.send("g.V().has('myVar', myValue)", {myValue: 'this_is_processed_by_
 Alternativelly, you can use groovy files instead:
 
 ```ruby
-resp = conn.file_send("template.groovy", {var1: 12})
+resp = conn.file_send("query.groovy", {var1: 12})
 ```
 
 ```groovy
@@ -37,7 +37,7 @@ g.V().has("something", var1)
 You can even specify the folder where to load those files in the constructor:
 
 ```ruby
-conn = GremlinClient.Connection.new(groovy_script_path:  'scripts/groovy')
+conn = GremlinClient.Connection.new(gremlin_script_path:  'scripts/gremlin')
 ```
 
 
