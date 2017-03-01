@@ -3,7 +3,7 @@ module GremlinClient
   # represents the connection to our gremlin server
   class Connection
 
-    attr_reader :connection_timeout, :timeout, :groovy_script_path
+    attr_reader :connection_timeout, :timeout, :gremlin_script_path
 
     STATUS = {
       success: 200,
@@ -35,7 +35,7 @@ module GremlinClient
       port: 8182,
       connection_timeout: 1,
       timeout: 10,
-      groovy_script_path: '.'
+      gremlin_script_path: '.'
     )
       url = "ws://#{host}:#{port}"
 
@@ -55,8 +55,8 @@ module GremlinClient
 
       @connection_timeout = connection_timeout
       @timeout = timeout
-      @groovy_script_path = groovy_script_path
-      @groovy_script_path = Pathname.new(@groovy_script_path) unless @groovy_script_path.is_a?(Pathname)
+      @gremlin_script_path = gremlin_script_path
+      @gremlin_script_path = Pathname.new(@gremlin_script_path) unless @gremlin_script_path.is_a?(Pathname)
     end
 
     def send_query(command, bindings={})
@@ -145,7 +145,7 @@ module GremlinClient
 
       def resolve_path(filename)
         return filename if filename.is_a?(String) && filename[0,1] == '/'
-        @groovy_script_path.join(filename).to_s
+        @gremlin_script_path.join(filename).to_s
       end
   end
 end

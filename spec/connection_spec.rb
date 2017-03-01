@@ -47,11 +47,11 @@ RSpec.describe :connection do
       conn = GremlinClient::Connection.new(host: :SERVER_A, port: 123)
     end
 
-    it :groovy_script_path do
+    it :gremlin_script_path do
       conn = GremlinClient::Connection.new
-      expect(conn.groovy_script_path).to eq(Pathname.new('.'))
-      conn = GremlinClient::Connection.new(groovy_script_path: '/etc/groovy')
-      expect(conn.groovy_script_path).to eq(Pathname.new('/etc/groovy'))
+      expect(conn.gremlin_script_path).to eq(Pathname.new('.'))
+      conn = GremlinClient::Connection.new(gremlin_script_path: '/etc/groovy')
+      expect(conn.gremlin_script_path).to eq(Pathname.new('/etc/groovy'))
     end
 
     it :connection_timeout do
@@ -271,5 +271,18 @@ RSpec.describe :connection do
         'language' => 'gremlin-groovy'
       }
     })
+  end
+
+
+  it :resolve_path do
+    conn = GremlinClient::Connection.new
+    expect(conn.send(:resolve_path, 'test')).to eq('test')
+
+    conn = GremlinClient::Connection.new(gremlin_script_path: '/test/path')
+    expect(conn.send(:resolve_path, 'test')).to eq('/test/path/test')
+
+
+    conn = GremlinClient::Connection.new(gremlin_script_path: 'test/path')
+    expect(conn.send(:resolve_path, 'test')).to eq('test/path/test')
   end
 end
