@@ -57,7 +57,7 @@ module GremlinClient
       @groovy_script_path = Pathname.new(@groovy_script_path) unless @groovy_script_path.is_a?(Pathname)
     end
 
-    def send(command, bindings={})
+    def send_query(command, bindings={})
       wait_connection
       reset_timer
       @ws.send(build_message(command, bindings), { type: 'text' })
@@ -66,7 +66,7 @@ module GremlinClient
     end
 
     def send_file(filename, bindings={})
-      send(IO.read(resolve_path(filename)), bindings)
+      send_query(IO.read(resolve_path(filename)), bindings)
     end
 
     def open?

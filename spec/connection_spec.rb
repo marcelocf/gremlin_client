@@ -9,6 +9,10 @@ RSpec.describe :connection do
   end
 
   module Message
+    def self.requestId=(requestId)
+      @requestId = requestId
+    end
+
     def self.called=(c)
       @called = c
     end
@@ -16,7 +20,8 @@ RSpec.describe :connection do
     def self.data
       @called ||= 0
       @called += 1
-      "{\"example\" : \"data #{@called}\"}"
+      rid = ", \"requestId\" : \"#{@requestId}\"" unless @requestId.nil?
+      "{\"example\" : \"data #{@called}\"#{rid}}"
     end
   end
 
@@ -72,13 +77,13 @@ RSpec.describe :connection do
       expect(conn).to receive(:wait_response)
       expect(conn).to receive(:parse_response)
 
-      conn.send(:query, :bindings)
+      conn.send_query(:query, :bindings)
     end
 
     it :file do
       conn = GremlinClient::Connection.new
       expect(IO).to receive(:read).with('filename').and_return(:file_contents)
-      expect(conn).to receive(:send).with(:file_contents, :bindings)
+      expect(conn).to receive(:send_query).with(:file_contents, :bindings)
       conn.send_file('filename', :bindings)
     end
   end
@@ -94,6 +99,29 @@ RSpec.describe :connection do
     conn = GremlinClient::Connection.new
     expect(conn.instance_variable_get('@ws')).to receive(:close).and_return(:from_websocket)
     expect(conn.close).to eq(:from_websocket)
+  end
+
+  describe :receive_message do
+    it :no_request_id do
+      Message.called = 0
+      Message.requestId = nil
+      conn = GremlinClient::Connection.new
+      conn.send(:reset_timer)
+      conn.receive_message(Message)
+      expect(conn.instance_variable_get('@response')).to be_nil
+    end
+
+    it :different_request_id do
+      Message.called = 0
+      Message.requestId = '123'
+      conn = GremlinClient::Connection.new
+      conn.send(:reset_timer)
+      conn.instance_variable_set('@requestId', '123')
+      conn.receive_message(Message)
+      expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 2', 'requestId' => '123'})
+      # exit this block reseting this value
+      Message.requestId = nil
+    end
   end
 
 end
