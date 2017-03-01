@@ -44,7 +44,6 @@ module GremlinClient
 
         @ws.on :message do |msg|
           gremlin.receive_message(msg)
-          @response=msg
         end
 
         @ws.on :error do |e|
