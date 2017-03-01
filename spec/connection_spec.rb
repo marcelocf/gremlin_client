@@ -149,5 +149,13 @@ RSpec.describe :connection do
       expect(conn).to receive(:open?).and_return(true).twice
       conn.send(:wait_connection)
     end
+
+    it :fails_with_longer_timeout do
+      conn = GremlinClient::Connection.new(connection_timeout: 3)
+      started_at = Time.now.to_i
+      expect(conn).to receive(:open?).and_return(false).at_least(:once)
+      expect{conn.send(:wait_connection)}.to raise_exception(::GremlinClient::ConnectionTimeoutError)
+      expect(Time.now.to_i - started_at).to be_within(1).of(3)
+    end
   end
 end
