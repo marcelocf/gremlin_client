@@ -9,7 +9,7 @@ RSpec.describe :connection do
   end
 
   module Message
-    def self.requestId=(requestId)
+    def self.request_id=(requestId)
       @request_id = requestId
     end
 
@@ -111,7 +111,7 @@ RSpec.describe :connection do
   describe :receive_message do
     it :no_request_id do
       Message.called = 0
-      Message.requestId = nil
+      Message.request_id = nil
       conn = GremlinClient::Connection.new
       conn.send(:reset_request)
       conn.receive_message(Message)
@@ -120,14 +120,14 @@ RSpec.describe :connection do
 
     it :different_request_id do
       Message.called = 0
-      Message.requestId = '123'
+      Message.request_id = '123'
       conn = GremlinClient::Connection.new
       conn.send(:reset_request)
       conn.instance_variable_set('@request_id', '123')
       conn.receive_message(Message)
       expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 2', 'requestId' => '123'})
       # exit this block reseting this value
-      Message.requestId = nil
+      Message.request_id = nil
     end
   end
 
@@ -177,10 +177,41 @@ RSpec.describe :connection do
   end
 
 
-  describe :wait_message do
+  describe :wait_response do
     it :no_message do
-      conn = GremlinClient::Connection.new
+      conn = GremlinClient::Connection.new(timeout: 1)
       conn.send(:reset_request)
+      expect{conn.send(:wait_response)}.to raise_exception(::GremlinClient::ExecutionTimeoutError)
+    end
+
+    it :wrong_id_message do
+      conn = GremlinClient::Connection.new(timeout: 1)
+      conn.send(:reset_request)
+      Message.request_id = :invalid_id
+      conn.receive_message(Message)
+      expect{conn.send(:wait_response)}.to raise_exception(::GremlinClient::ExecutionTimeoutError)
+    end
+
+    it :with_message do
+      conn = GremlinClient::Connection.new(timeout: 1)
+      conn.send(:reset_request)
+      Message.called = 0
+      Message.request_id = conn.instance_variable_get('@request_id')
+      conn.receive_message(Message)
+      conn.send(:wait_response)
+      expect(conn.instance_variable_get('@response')).to eq({
+          'example' =>'data 1',
+          'requestId' => conn.instance_variable_get('@request_id')
+      })
+    end
+
+    it :with_error do
+      conn = GremlinClient::Connection.new(timeout: 1)
+      conn.send(:reset_request)
+      Message.called = 0
+      Message.request_id = conn.instance_variable_get('@request_id')
+      conn.receive_error(Message)
+      expect{conn.send(:wait_response)}.to raise_exception(::GremlinClient::ServerError)
     end
   end
 end
