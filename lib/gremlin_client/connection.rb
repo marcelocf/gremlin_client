@@ -61,7 +61,7 @@ module GremlinClient
 
     def send_query(command, bindings={})
       wait_connection
-      reset_timer
+      reset_request
       @ws.send(build_message(command, bindings), { type: 'text' })
       wait_response
       return parse_response
@@ -101,7 +101,7 @@ module GremlinClient
         fail ::GremlinClient::ConnectionTimeoutError.new(@connection_timeout) unless open?
       end
 
-      def reset_timer
+      def reset_request
         @request_id= SecureRandom.uuid
         @started_at = Time.now.to_i
         @error = nil

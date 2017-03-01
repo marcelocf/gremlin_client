@@ -78,7 +78,7 @@ RSpec.describe :connection do
       conn = GremlinClient::Connection.new
       sock = conn.instance_variable_get('@ws')
       expect(conn).to receive(:wait_connection)
-      expect(conn).to receive(:reset_timer)
+      expect(conn).to receive(:reset_request)
       expect(conn).to receive(:build_message).with(:query, :bindings).and_return(:my_message)
       expect(sock).to receive(:send).with(:my_message, { type: 'text' })
       expect(conn).to receive(:wait_response)
@@ -113,7 +113,7 @@ RSpec.describe :connection do
       Message.called = 0
       Message.requestId = nil
       conn = GremlinClient::Connection.new
-      conn.send(:reset_timer)
+      conn.send(:reset_request)
       conn.receive_message(Message)
       expect(conn.instance_variable_get('@response')).to be_nil
     end
@@ -122,7 +122,7 @@ RSpec.describe :connection do
       Message.called = 0
       Message.requestId = '123'
       conn = GremlinClient::Connection.new
-      conn.send(:reset_timer)
+      conn.send(:reset_request)
       conn.instance_variable_set('@request_id', '123')
       conn.receive_message(Message)
       expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 2', 'requestId' => '123'})
@@ -160,19 +160,27 @@ RSpec.describe :connection do
   end
 
 
-  it :reset_timer do
+  it :reset_request do
     conn = GremlinClient::Connection.new
     conn.instance_variable_set('@request_id', :old_id)
     conn.instance_variable_set('@started_at', :old_started_at)
     conn.instance_variable_set('@error', :old_error)
     conn.instance_variable_set('@response', :old_response)
 
-    conn.send(:reset_timer)
+    conn.send(:reset_request)
 
     expect(conn.instance_variable_get('@request_id')).not_to eq(:old_id)
     expect(conn.instance_variable_get('@request_id').length).to be(36) # uuid is 36 chars long
     expect(conn.instance_variable_get('@started_at')).to be_within(1).of(Time.now.to_i)
     expect(conn.instance_variable_get('@error')).to be_nil
     expect(conn.instance_variable_get('@response')).to be_nil
+  end
+
+
+  describe :wait_message do
+    it :no_message do
+      conn = GremlinClient::Connection.new
+      conn.send(:reset_request)
+    end
   end
 end
