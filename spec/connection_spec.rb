@@ -255,7 +255,21 @@ RSpec.describe :connection do
         :server_timeout,
         :server_serialization_error
       ].each { |name| test_status(name) }
-
     end
+  end
+
+  it :build_message do
+    conn = GremlinClient::Connection.new
+    conn.send(:reset_request)
+    expect(JSON.parse(conn.send(:build_message, :query, :bindings))).to eq({
+      'requestId' => conn.instance_variable_get('@request_id'),
+      'op' => 'eval',
+      'processor' => '',
+      'args' => {
+        'gremlin' => 'query',
+        'bindings' => 'bindings',
+        'language' => 'gremlin-groovy'
+      }
+    })
   end
 end
