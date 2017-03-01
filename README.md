@@ -1,4 +1,13 @@
 # Ruby Gremlin Client
+
+
+[![Build Status](https://travis-ci.org/marcelocf/gremlin_client.svg?branch=master)](https://travis-ci.org/marcelocf/gremlin_clien)
+[![Gem Version](https://badge.fury.io/rb/gremlin_client.svg)](https://badge.fury.io/rb/gremlin_client)
+![](http://ruby-gem-downloads-badge.herokuapp.com/gremlin_client?color=brightgreen)
+[![Coverage Status](https://coveralls.io/repos/github/marcelocf/gremlin_client/badge.svg?branch=master)](https://coveralls.io/github/marcelocf/gremlin_client?branch=master)
+
+
+
 Gremlin client in ruby for the WebSocketChannelizer.
 
 This client is not thread safe by itself! If you want to make it safer for your app, please make sure
