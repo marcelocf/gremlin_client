@@ -9,6 +9,10 @@ RSpec.describe :connection do
   end
 
   module Message
+    def self.called=(c)
+      @called = c
+    end
+
     def self.data
       @called ||= 0
       @called += 1
@@ -49,9 +53,10 @@ RSpec.describe :connection do
 
 
     it :socket_listeners do
+      Message.called = 0
       conn = GremlinClient::Connection.new
-      expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 7'})
-      expect(conn.instance_variable_get('@error').data).to eq("{\"example\" : \"data 8\"}")
+      expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 1'})
+      expect(conn.instance_variable_get('@error').data).to eq("{\"example\" : \"data 2\"}")
     end
   end
 
@@ -77,4 +82,18 @@ RSpec.describe :connection do
       conn.send_file('filename', :bindings)
     end
   end
+
+
+  it :open? do
+    conn = GremlinClient::Connection.new
+    expect(conn.instance_variable_get('@ws')).to receive(:open?).and_return(:from_websocket)
+    expect(conn.open?).to eq(:from_websocket)
+  end
+
+  it :close do
+    conn = GremlinClient::Connection.new
+    expect(conn.instance_variable_get('@ws')).to receive(:close).and_return(:from_websocket)
+    expect(conn.close).to eq(:from_websocket)
+  end
+
 end
