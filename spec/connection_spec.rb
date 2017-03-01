@@ -9,6 +9,10 @@ RSpec.describe :connection do
   end
 
   module Message
+    def self.status=(name)
+      @status_code = GremlinClient::Connection::STATUS[name]
+    end
+
     def self.request_id=(requestId)
       @request_id = requestId
     end
@@ -21,7 +25,8 @@ RSpec.describe :connection do
       @called ||= 0
       @called += 1
       rid = ", \"requestId\" : \"#{@request_id}\"" unless @request_id.nil?
-      "{\"example\" : \"data #{@called}\"#{rid}}"
+      stt = ", \"status\" : { \"code\" : #{@status_code} }" unless @status_code.nil?
+      "{\"example\" : \"data #{@called}\"#{rid}#{stt}}"
     end
   end
 
@@ -216,7 +221,41 @@ RSpec.describe :connection do
   end
 
   describe :treat_response do
+    it :success_statuses do
+      def test_status(name)
+        conn = GremlinClient::Connection.new
+        conn.send(:reset_request)
+        Message.request_id = conn.instance_variable_get('@request_id')
+        Message.status = name
+        conn.receive_message(Message)
+        conn.send(:treat_response)
+      end
+      test_status(:success)
+      test_status(:no_content)
+      test_status(:partial_content)
+    end
 
+    it :error_statuses do
+      def test_status(name)
+        conn = GremlinClient::Connection.new
+        conn.send(:reset_request)
+        Message.request_id = conn.instance_variable_get('@request_id')
+        Message.status = name
+        conn.receive_message(Message)
+        expect{conn.send(:treat_response)}.to raise_exception(::GremlinClient::ServerError)
+      end
+
+      [
+        :unauthorized,
+        :authenticate,
+        :malformed_request,
+        :invalid_request_arguments,
+        :server_error,
+        :script_evaluation_error,
+        :server_timeout,
+        :server_serialization_error
+      ].each { |name| test_status(name) }
+
+    end
   end
-
 end
