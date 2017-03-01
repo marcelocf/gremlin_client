@@ -58,7 +58,6 @@ module GremlinClient
       @groovy_script_path = Pathname.new(@groovy_script_path) unless @groovy_script_path.is_a?(Pathname)
     end
 
-
     def send(command, bindings={})
       wait_connection
       reset_timer
@@ -82,7 +81,9 @@ module GremlinClient
 
     # this has to be public so the websocket client thread sees it
     def receive_message(msg)
-      @response = JSON.parse(msg.data)
+      response = JSON.parse(msg.data)
+      # this check is important in case a request timeout and we make new ones after
+      @response = response if response['requestId'] == @requestId
     end
 
     def receive_error(e)
@@ -99,6 +100,7 @@ module GremlinClient
       end
 
       def reset_timer
+        @requestId= SecureRandom.uuid
         @started_at = Time.now.to_i
         @error = nil
         @response = nil
@@ -127,7 +129,7 @@ module GremlinClient
 
       def build_message(command, bindings)
         message = {
-          requestId: SecureRandom.uuid,
+          requestId: @requestId,
           op: 'eval',
           processor: '',
           args: {
