@@ -82,7 +82,7 @@ RSpec.describe :connection do
       expect(conn).to receive(:build_message).with(:query, :bindings).and_return(:my_message)
       expect(sock).to receive(:send).with(:my_message, { type: 'text' })
       expect(conn).to receive(:wait_response)
-      expect(conn).to receive(:parse_response)
+      expect(conn).to receive(:treat_response)
 
       conn.send_query(:query, :bindings)
     end
@@ -214,4 +214,9 @@ RSpec.describe :connection do
       expect{conn.send(:wait_response)}.to raise_exception(::GremlinClient::ServerError)
     end
   end
+
+  describe :treat_response do
+
+  end
+
 end

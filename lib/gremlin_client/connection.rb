@@ -64,7 +64,7 @@ module GremlinClient
       reset_request
       @ws.send(build_message(command, bindings), { type: 'text' })
       wait_response
-      return parse_response
+      return treat_response
     end
 
     def send_file(filename, bindings={})
@@ -119,7 +119,7 @@ module GremlinClient
 
       # we validate our response here to make sure it is going to be
       # raising exceptions in the right thread
-      def parse_response
+      def treat_response
         # note that the partial_content status should be processed differently.
         # look at http://tinkerpop.apache.org/docs/3.0.1-incubating/ for more info
         ok_status = [:success, :no_content, :partial_content].map { |st| STATUS[st] }
