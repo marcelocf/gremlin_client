@@ -10,7 +10,7 @@ RSpec.describe :connection do
 
   module Message
     def self.requestId=(requestId)
-      @requestId = requestId
+      @request_id = requestId
     end
 
     def self.called=(c)
@@ -20,7 +20,7 @@ RSpec.describe :connection do
     def self.data
       @called ||= 0
       @called += 1
-      rid = ", \"requestId\" : \"#{@requestId}\"" unless @requestId.nil?
+      rid = ", \"requestId\" : \"#{@request_id}\"" unless @request_id.nil?
       "{\"example\" : \"data #{@called}\"#{rid}}"
     end
   end
@@ -123,7 +123,7 @@ RSpec.describe :connection do
       Message.requestId = '123'
       conn = GremlinClient::Connection.new
       conn.send(:reset_timer)
-      conn.instance_variable_set('@requestId', '123')
+      conn.instance_variable_set('@request_id', '123')
       conn.receive_message(Message)
       expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 2', 'requestId' => '123'})
       # exit this block reseting this value
@@ -157,5 +157,22 @@ RSpec.describe :connection do
       expect{conn.send(:wait_connection)}.to raise_exception(::GremlinClient::ConnectionTimeoutError)
       expect(Time.now.to_i - started_at).to be_within(1).of(3)
     end
+  end
+
+
+  it :reset_timer do
+    conn = GremlinClient::Connection.new
+    conn.instance_variable_set('@request_id', :old_id)
+    conn.instance_variable_set('@started_at', :old_started_at)
+    conn.instance_variable_set('@error', :old_error)
+    conn.instance_variable_set('@response', :old_response)
+
+    conn.send(:reset_timer)
+
+    expect(conn.instance_variable_get('@request_id')).not_to eq(:old_id)
+    expect(conn.instance_variable_get('@request_id').length).to be(36) # uuid is 36 chars long
+    expect(conn.instance_variable_get('@started_at')).to be_within(1).of(Time.now.to_i)
+    expect(conn.instance_variable_get('@error')).to be_nil
+    expect(conn.instance_variable_get('@response')).to be_nil
   end
 end

@@ -84,7 +84,7 @@ module GremlinClient
     def receive_message(msg)
       response = JSON.parse(msg.data)
       # this check is important in case a request timeout and we make new ones after
-      @response = response if response['requestId'] == @requestId
+      @response = response if response['requestId'] == @request_id
     end
 
     def receive_error(e)
@@ -102,7 +102,7 @@ module GremlinClient
       end
 
       def reset_timer
-        @requestId= SecureRandom.uuid
+        @request_id= SecureRandom.uuid
         @started_at = Time.now.to_i
         @error = nil
         @response = nil
@@ -131,7 +131,7 @@ module GremlinClient
 
       def build_message(command, bindings)
         message = {
-          requestId: @requestId,
+          requestId: @request_id,
           op: 'eval',
           processor: '',
           args: {
