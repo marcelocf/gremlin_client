@@ -6,6 +6,9 @@ require 'spec_helper'
 # Tests on the freetext feature
 RSpec.describe :connection do
   class MockedSocket
+    def close
+      nil
+    end
   end
 
   module Message
@@ -156,11 +159,20 @@ RSpec.describe :connection do
     end
 
     it :fails_with_longer_timeout do
-      conn = GremlinClient::Connection.new(connection_timeout: 3)
+      conn = GremlinClient::Connection.new(connection_timeout: 3, autoconnect: false)
+      conn.connect
       started_at = Time.now.to_i
       expect(conn).to receive(:open?).and_return(false).at_least(:once)
       expect{conn.send(:wait_connection)}.to raise_exception(::GremlinClient::ConnectionTimeoutError)
       expect(Time.now.to_i - started_at).to be_within(1).of(3)
+    end
+
+    it :fails_with_autonnect do
+      conn = GremlinClient::Connection.new(connection_timeout: 2, autoconnect: true)
+      started_at = Time.now.to_i
+      expect(conn).to receive(:open?).and_return(false).at_least(:once)
+      expect{conn.send(:wait_connection)}.to raise_exception(::GremlinClient::ConnectionTimeoutError)
+      expect(Time.now.to_i - started_at).to be_within(1).of(4)
     end
   end
 

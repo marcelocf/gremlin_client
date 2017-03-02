@@ -35,12 +35,23 @@ module GremlinClient
       port: 8182,
       connection_timeout: 1,
       timeout: 10,
-      gremlin_script_path: '.'
+      gremlin_script_path: '.',
+      autoconnect: true
     )
-      url = "ws://#{host}:#{port}"
+      @host = host
+      @port = port
+      @connection_timeout = connection_timeout
+      @timeout = timeout
+      @gremlin_script_path = gremlin_script_path
+      @gremlin_script_path = Pathname.new(@gremlin_script_path) unless @gremlin_script_path.is_a?(Pathname)
+      @autoconnect = autoconnect
+      connect if @autoconnect
+    end
 
+    # creates a new connection object
+    def connect
       gremlin = self
-      WebSocket::Client::Simple.connect("ws://#{host}:#{port}/") do |ws|
+      WebSocket::Client::Simple.connect("ws://#{@host}:#{@port}/") do |ws|
         @ws = ws
 
         @ws.on :message do |msg|
@@ -51,12 +62,11 @@ module GremlinClient
           receive_error(e)
         end
       end
+    end
 
-
-      @connection_timeout = connection_timeout
-      @timeout = timeout
-      @gremlin_script_path = gremlin_script_path
-      @gremlin_script_path = Pathname.new(@gremlin_script_path) unless @gremlin_script_path.is_a?(Pathname)
+    def reconnect
+      @ws.close unless @ws.nil?
+      connect
     end
 
     def send_query(command, bindings={})
@@ -93,12 +103,19 @@ module GremlinClient
 
     protected
 
-      def wait_connection
+      def wait_connection(skip_reconnect = false)
         w_from = Time.now.to_i
         while !open? && Time.now.to_i - @connection_timeout < w_from
           sleep 0.001
         end
-        fail ::GremlinClient::ConnectionTimeoutError.new(@connection_timeout) unless open?
+        unless open?
+          # reconnection code
+          if @autoconnect && !skip_reconnect
+            reconnect
+            return wait_connection(true)
+          end
+          fail ::GremlinClient::ConnectionTimeoutError.new(@connection_timeout)
+        end
       end
 
       def reset_request
