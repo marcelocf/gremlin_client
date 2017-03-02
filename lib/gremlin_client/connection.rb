@@ -83,6 +83,9 @@ module GremlinClient
 
     def open?
       @ws.open?
+    rescue ::NoMethodError
+      # #2 => it appears to happen in some situations when the situation is dropped
+      return false
     end
 
     def close
