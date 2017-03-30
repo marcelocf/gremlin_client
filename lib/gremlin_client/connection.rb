@@ -97,7 +97,15 @@ module GremlinClient
     def receive_message(msg)
       response = JSON.parse(msg.data)
       # this check is important in case a request timeout and we make new ones after
-      @response = response if response['requestId'] == @request_id
+      if response['requestId'] == @request_id
+        if @response.nil?
+          @response = response
+        else
+          @response['result']['data'].concat response['result']['data']
+          @response['result']['meta'].merge! response['result']['meta']
+          @response['status'] = response['status']
+        end
+      end
     end
 
     def receive_error(e)
@@ -128,8 +136,15 @@ module GremlinClient
         @response = nil
       end
 
+      def is_finished?
+        return true unless @error.nil?
+        return false if @response.nil?
+        return false if @response['status'].nil?
+        return @response['status']['code'] != STATUS[:partial_content]
+      end
+
       def wait_response
-        while @response.nil? and @error.nil? && (Time.now.to_i - @started_at < @timeout)
+        while !is_finished? && (Time.now.to_i - @started_at < @timeout)
           sleep 0.001
         end
 

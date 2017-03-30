@@ -27,9 +27,17 @@ RSpec.describe :connection do
     def self.data
       @called ||= 0
       @called += 1
-      rid = ", \"requestId\" : \"#{@request_id}\"" unless @request_id.nil?
-      stt = ", \"status\" : { \"code\" : #{@status_code} }" unless @status_code.nil?
-      "{\"example\" : \"data #{@called}\"#{rid}#{stt}}"
+      #rid = ", \"requestId\" : \"#{@request_id}\"" unless @request_id.nil?
+      #stt = ", \"status\" : { \"code\" : #{@status_code} }" unless @status_code.nil?
+      #"{\'{\"example\" : \"data #{@called}\"#{rid}#{stt}}"
+      {
+        requestId: @request_id,
+        status: { code: @status_code },
+        result: {
+          data: [@called],
+          meta: {},
+        },
+      }.to_json
     end
   end
 
@@ -75,8 +83,10 @@ RSpec.describe :connection do
     it :socket_listeners do
       Message.called = 0
       conn = GremlinClient::Connection.new
-      expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 1'})
-      expect(conn.instance_variable_get('@error').data).to eq("{\"example\" : \"data 2\"}")
+      expect(conn.instance_variable_get('@response')['result']['data']).to eq([1])
+      expect(conn.instance_variable_get('@error').data).to eq(
+        "{\"requestId\":null,\"status\":{\"code\":null},\"result\":{\"data\":[2],\"meta\":{}}}"
+      )
     end
   end
 
@@ -133,9 +143,37 @@ RSpec.describe :connection do
       conn.send(:reset_request)
       conn.instance_variable_set('@request_id', '123')
       conn.receive_message(Message)
-      expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 2', 'requestId' => '123'})
+      expect(conn.instance_variable_get('@response')).to eq({
+        'requestId' => '123',
+        'status' => { 'code' => nil },
+        'result' => { 'data' => [2], 'meta' => {} }
+      })
       # exit this block reseting this value
       Message.request_id = nil
+    end
+
+    it :partial_message do
+      Message.called = 0
+
+      conn = GremlinClient::Connection.new
+      conn.send(:reset_request)
+      Message.request_id = conn.instance_variable_get('@request_id')
+      Message.status = :partial_content
+      conn.receive_message(Message)
+      expect(conn.send('is_finished?')).to be false
+      Message.status = :success
+      conn.receive_message(Message)
+      expect(conn.send('is_finished?')).to be true
+      expect(conn.instance_variable_get('@response')).to eq({
+        'requestId' => conn.instance_variable_get('@request_id'),
+        'status' => { 'code' => 200 },
+        # not 1, 2 because it is called once uppon init
+        'result' => { 'data' => [2, 3], 'meta' => {} }
+      })
+      # exit this block reseting this value
+      Message.request_id = nil
+      # clear the status
+      Message.status = nil
     end
   end
 
@@ -217,8 +255,9 @@ RSpec.describe :connection do
       conn.receive_message(Message)
       conn.send(:wait_response)
       expect(conn.instance_variable_get('@response')).to eq({
-          'example' =>'data 1',
-          'requestId' => conn.instance_variable_get('@request_id')
+          'requestId' => conn.instance_variable_get('@request_id'),
+          'status' => { 'code' => nil } ,
+          'result' => { 'data' => [1], 'meta' => {} }
       })
     end
 
