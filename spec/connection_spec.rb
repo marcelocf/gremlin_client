@@ -27,9 +27,17 @@ RSpec.describe :connection do
     def self.data
       @called ||= 0
       @called += 1
-      rid = ", \"requestId\" : \"#{@request_id}\"" unless @request_id.nil?
-      stt = ", \"status\" : { \"code\" : #{@status_code} }" unless @status_code.nil?
-      "{\"example\" : \"data #{@called}\"#{rid}#{stt}}"
+      #rid = ", \"requestId\" : \"#{@request_id}\"" unless @request_id.nil?
+      #stt = ", \"status\" : { \"code\" : #{@status_code} }" unless @status_code.nil?
+      #"{\'{\"example\" : \"data #{@called}\"#{rid}#{stt}}"
+      {
+        requestId: @request_id,
+        status: { code: @status_code },
+        result: {
+          data: [@called],
+          meta: {},
+        },
+      }.to_json
     end
   end
 
@@ -75,7 +83,7 @@ RSpec.describe :connection do
     it :socket_listeners do
       Message.called = 0
       conn = GremlinClient::Connection.new
-      expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 1'})
+      expect(conn.instance_variable_get('@response')['data']).to eq([1])
       expect(conn.instance_variable_get('@error').data).to eq("{\"example\" : \"data 2\"}")
     end
   end
@@ -217,8 +225,9 @@ RSpec.describe :connection do
       conn.receive_message(Message)
       conn.send(:wait_response)
       expect(conn.instance_variable_get('@response')).to eq({
-          'example' =>'data 1',
-          'requestId' => conn.instance_variable_get('@request_id')
+          'requestId' => conn.instance_variable_get('@request_id'),
+          'status' => { 'code' => nil } ,
+          'result' => { 'data' => [1], 'meta' => {} }
       })
     end
 
