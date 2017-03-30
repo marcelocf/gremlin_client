@@ -137,13 +137,13 @@ module GremlinClient
         @response = nil
       end
 
-      def is_incomplete_response?
-        return true if @response.nil? && @error.nil?
-        return @response['status']['code'] == 206
+      def is_finished?
+        return false if @response.nil? && @error.nil?
+        return @response['status']['code'] != STATUS[:partial_content]
       end
 
       def wait_response
-        while is_incomplete_response? && (Time.now.to_i - @started_at < @timeout)
+        while !is_finished? && (Time.now.to_i - @started_at < @timeout)
           sleep 0.001
         end
 
