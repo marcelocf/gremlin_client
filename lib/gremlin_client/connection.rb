@@ -138,7 +138,9 @@ module GremlinClient
       end
 
       def is_finished?
-        return false if @response.nil? && @error.nil?
+        return true unless @error.nil?
+        return false if @response.nil?
+        return false if @response['status'].nil?
         return @response['status']['code'] != STATUS[:partial_content]
       end
 
