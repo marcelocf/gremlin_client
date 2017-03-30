@@ -132,7 +132,6 @@ module GremlinClient
       def reset_request
         @request_id= SecureRandom.uuid
         @started_at = Time.now.to_i
-        @status = nil
         @error = nil
         @response = nil
       end
