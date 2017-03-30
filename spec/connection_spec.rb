@@ -83,8 +83,10 @@ RSpec.describe :connection do
     it :socket_listeners do
       Message.called = 0
       conn = GremlinClient::Connection.new
-      expect(conn.instance_variable_get('@response')['data']).to eq([1])
-      expect(conn.instance_variable_get('@error').data).to eq("{\"example\" : \"data 2\"}")
+      expect(conn.instance_variable_get('@response')['result']['data']).to eq([1])
+      expect(conn.instance_variable_get('@error').data).to eq(
+        "{\"requestId\":null,\"status\":{\"code\":null},\"result\":{\"data\":[2],\"meta\":{}}}"
+      )
     end
   end
 
@@ -141,7 +143,11 @@ RSpec.describe :connection do
       conn.send(:reset_request)
       conn.instance_variable_set('@request_id', '123')
       conn.receive_message(Message)
-      expect(conn.instance_variable_get('@response')).to eq({'example' => 'data 2', 'requestId' => '123'})
+      expect(conn.instance_variable_get('@response')).to eq({
+        'requestId' => '123',
+        'status' => { 'code' => nil },
+        'result' => { 'data' => [2], 'meta' => {} }
+      })
       # exit this block reseting this value
       Message.request_id = nil
     end
