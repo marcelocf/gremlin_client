@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gremlin_client (0.1.2)
+    gremlin_client (0.1.3)
       websocket-client-simple (~> 0.3)
 
 GEM
@@ -108,4 +108,4 @@ DEPENDENCIES
   rubocop (~> 0.47)
 
 BUNDLED WITH
-   1.14.5
+   1.14.6
