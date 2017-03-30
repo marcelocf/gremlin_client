@@ -151,6 +151,30 @@ RSpec.describe :connection do
       # exit this block reseting this value
       Message.request_id = nil
     end
+
+    it :partial_message do
+      Message.called = 0
+
+      conn = GremlinClient::Connection.new
+      conn.send(:reset_request)
+      Message.request_id = conn.instance_variable_get('@request_id')
+      Message.status = :partial_content
+      conn.receive_message(Message)
+      expect(conn.send('is_finished?')).to be false
+      Message.status = :success
+      conn.receive_message(Message)
+      expect(conn.send('is_finished?')).to be true
+      expect(conn.instance_variable_get('@response')).to eq({
+        'requestId' => conn.instance_variable_get('@request_id'),
+        'status' => { 'code' => 200 },
+        # not 1, 2 because it is called once uppon init
+        'result' => { 'data' => [2, 3], 'meta' => {} }
+      })
+      # exit this block reseting this value
+      Message.request_id = nil
+      # clear the status
+      Message.status = nil
+    end
   end
 
   it :receive_error do
