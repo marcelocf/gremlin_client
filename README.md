@@ -8,6 +8,14 @@
 
 
 
+```
+=================================== WARNING ===================================
+|| If you are using version 0.1.2 or prior please update! Your results won't ||
+|| be consistent while you don't do so!                                      ||
+=================================== WARNING ===================================
+```
+
+
 Gremlin client in ruby for the WebSocketChannelizer.
 
 This client is not thread safe by itself! If you want to make it safer for your app, please make sure
