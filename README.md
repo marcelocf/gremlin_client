@@ -14,7 +14,8 @@
 || be consistent while you don't do so!                                      ||
 =================================== WARNING ===================================
 ```
-Details on the above at [#3](/marcelocf/gremlin_client/issues/3).
+Details on the above at
+[#3](https://github.com/marcelocf/gremlin_client/issues/3)
 
 
 Gremlin client in ruby for the WebSocketChannelizer.
