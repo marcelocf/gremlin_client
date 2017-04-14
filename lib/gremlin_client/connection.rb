@@ -1,4 +1,4 @@
-
+require 'oj'
 module GremlinClient
   # represents the connection to our gremlin server
   class Connection
@@ -95,7 +95,7 @@ module GremlinClient
 
     # this has to be public so the websocket client thread sees it
     def receive_message(msg)
-      response = JSON.parse(msg.data)
+      response = Oj.load(msg.data)
       # this check is important in case a request timeout and we make new ones after
       if response['requestId'] == @request_id
         if @response.nil?
@@ -175,7 +175,7 @@ module GremlinClient
             language: 'gremlin-groovy'
           }
         }
-        JSON.generate(message)
+        Oj.dump(message, mode: :compat)
       end
 
       def resolve_path(filename)
