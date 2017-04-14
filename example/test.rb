@@ -6,10 +6,25 @@ require 'gremlin_client'
 
 conn = GremlinClient::Connection.new(gremlin_script_path: 'example/scripts')
 
-pp conn.send_query('1+what', {what: 10})
 
-pp conn.send_query('0 && 1')
+def build_message(command, bindings)
+  message = {
+    requestId: 1231231,
+    op: 'eval',
+    processor: '',
+    args: {
+      gremlin: command,
+      bindings: bindings,
+      language: 'gremlin-groovy'
+    }
+  }
+end
 
-pp conn.send_file('test.groovy', {what: Time.now.to_i})
 
-conn.close
+msg =build_message('some big string', { lala: 123, lolo: [1,2,3]})
+
+puts JSON.dump(msg)
+puts ''
+puts ''
+puts ''
+puts Oj.dump(msg, mode: :compat)
