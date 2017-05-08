@@ -31,7 +31,7 @@ gem instal gremlin_client
 
 ```ruby
 conn = GremlinClient.Connection.new(host: 'localhost', port:123)
-resp = conn.send("g.V().has('myVar', myValue)", {myValue: 'this_is_processed_by_gremlin_server'})
+resp = conn.send_query("g.V().has('myVar', myValue)", {myValue: 'this_is_processed_by_gremlin_server'})
 ```
 
 Alternativelly, you can use groovy files instead:
