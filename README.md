@@ -30,7 +30,7 @@ gem instal gremlin_client
 ```
 
 ```ruby
-conn = GremlinClient.Connection.new(host: 'localhost', port:123)
+conn = GremlinClient::Connection.new(host: 'localhost', port:123)
 resp = conn.send_query("g.V().has('myVar', myValue)", {myValue: 'this_is_processed_by_gremlin_server'})
 ```
 
@@ -47,7 +47,7 @@ g.V().has("something", var1)
 You can even specify the folder where to load those files in the constructor:
 
 ```ruby
-conn = GremlinClient.Connection.new(gremlin_script_path:  'scripts/gremlin')
+conn = GremlinClient::Connection.new(gremlin_script_path:  'scripts/gremlin')
 ```
 
 
