@@ -49,12 +49,12 @@ RSpec.describe :connection do
 
   describe :initialize do
     it :websocket do
-      expect(WebSocket::Client::Simple).to receive(:connect).with('ws://localhost:8182/')
+      expect(WebSocket::Client::Simple).to receive(:connect).with('ws://localhost:8182/gremlin')
       conn = GremlinClient::Connection.new
     end
 
     it :websocket do
-      expect(WebSocket::Client::Simple).to receive(:connect).with('ws://SERVER_A:123/')
+      expect(WebSocket::Client::Simple).to receive(:connect).with('ws://SERVER_A:123/gremlin')
       conn = GremlinClient::Connection.new(host: :SERVER_A, port: 123)
     end
 
