@@ -33,6 +33,7 @@ module GremlinClient
     def initialize(
       host: 'localhost',
       port: 8182,
+      path: '/',
       connection_timeout: 1,
       timeout: 10,
       gremlin_script_path: '.',
@@ -40,6 +41,7 @@ module GremlinClient
     )
       @host = host
       @port = port
+      @path = path
       @connection_timeout = connection_timeout
       @timeout = timeout
       @gremlin_script_path = gremlin_script_path
@@ -51,7 +53,7 @@ module GremlinClient
     # creates a new connection object
     def connect
       gremlin = self
-      WebSocket::Client::Simple.connect("ws://#{@host}:#{@port}/") do |ws|
+      WebSocket::Client::Simple.connect("ws://#{@host}:#{@port}#{@path}") do |ws|
         @ws = ws
 
         @ws.on :message do |msg|

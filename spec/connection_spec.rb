@@ -54,8 +54,8 @@ RSpec.describe :connection do
     end
 
     it :websocket do
-      expect(WebSocket::Client::Simple).to receive(:connect).with('ws://SERVER_A:123/')
-      conn = GremlinClient::Connection.new(host: :SERVER_A, port: 123)
+      expect(WebSocket::Client::Simple).to receive(:connect).with('ws://SERVER_A:123/path/to/gremlin')
+      conn = GremlinClient::Connection.new(host: :SERVER_A, port: 123, path: '/path/to/gremlin')
     end
 
     it :gremlin_script_path do
