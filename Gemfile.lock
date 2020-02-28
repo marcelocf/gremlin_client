@@ -56,7 +56,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
     rainbow (3.0.0)
-    rake (12.3.1)
+    rake (13.0.1)
     rb-fsevent (0.10.3)
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
@@ -107,7 +107,7 @@ DEPENDENCIES
   coveralls (~> 0.8)
   gremlin_client!
   guard-rspec (~> 4.7)
-  rake (~> 12.0)
+  rake (~> 13.0)
   rspec (~> 3.5)
   rubocop (~> 0.49)
 
