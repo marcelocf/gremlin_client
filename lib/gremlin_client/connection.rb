@@ -64,7 +64,7 @@ module GremlinClient
         end
 
         @ws.on :error do |e|
-          receive_error(e)
+          gremlin.receive_error(e)
         end
       end
     end
