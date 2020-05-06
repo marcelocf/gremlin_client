@@ -37,6 +37,7 @@ module GremlinClient
       connection_timeout: 1,
       timeout: 10,
       gremlin_script_path: '.',
+      secure: false,
       autoconnect: true
     )
       @host = host
@@ -46,6 +47,7 @@ module GremlinClient
       @timeout = timeout
       @gremlin_script_path = gremlin_script_path
       @gremlin_script_path = Pathname.new(@gremlin_script_path) unless @gremlin_script_path.is_a?(Pathname)
+      @secure = secure
       @autoconnect = autoconnect
       connect if @autoconnect
     end
@@ -53,7 +55,8 @@ module GremlinClient
     # creates a new connection object
     def connect
       gremlin = self
-      WebSocket::Client::Simple.connect("ws://#{@host}:#{@port}#{@path}") do |ws|
+      protocol = @secure ? "wss" : "ws"
+      WebSocket::Client::Simple.connect("#{protocol}://#{@host}:#{@port}#{@path}") do |ws|
         @ws = ws
 
         @ws.on :message do |msg|
