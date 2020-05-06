@@ -1,3 +1,3 @@
-module GremliClient
-  VERSION = "0.1.6"
+module GremlinClient
+  VERSION = "0.1.7"
 end
