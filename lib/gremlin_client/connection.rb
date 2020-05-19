@@ -106,7 +106,7 @@ module GremlinClient
         if @response.nil?
           @response = response
         else
-          @response['result']['data'].concat response['result']['data']
+          @response['result']['data'] = deep_merge(@response['result']['data'], response['result']['data'])
           @response['result']['meta'].merge! response['result']['meta']
           @response['status'] = response['status']
         end
@@ -118,6 +118,18 @@ module GremlinClient
     end
 
     protected
+
+      def deep_merge(a, b)
+        a.merge(b) do |key, a_val, b_val|
+          if a_val.is_a?(Hash) && b_val.is_a?(Hash)
+            deep_merge(a_val, b_val)
+          elsif a_val.is_a?(Array) && b_val.is_a?(Array)
+            a_val + b_val
+          else
+            b_val
+          end
+        end
+      end
 
       def wait_connection(skip_reconnect = false)
         w_from = Time.now.to_i
