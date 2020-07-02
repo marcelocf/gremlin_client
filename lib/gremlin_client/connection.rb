@@ -37,6 +37,7 @@ module GremlinClient
       connection_timeout: 1,
       timeout: 10,
       gremlin_script_path: '.',
+      secure: false,
       autoconnect: true
     )
       @host = host
@@ -46,6 +47,7 @@ module GremlinClient
       @timeout = timeout
       @gremlin_script_path = gremlin_script_path
       @gremlin_script_path = Pathname.new(@gremlin_script_path) unless @gremlin_script_path.is_a?(Pathname)
+      @secure = secure
       @autoconnect = autoconnect
       connect if @autoconnect
     end
@@ -53,7 +55,8 @@ module GremlinClient
     # creates a new connection object
     def connect
       gremlin = self
-      WebSocket::Client::Simple.connect("ws://#{@host}:#{@port}#{@path}") do |ws|
+      protocol = @secure ? "wss" : "ws"
+      WebSocket::Client::Simple.connect("#{protocol}://#{@host}:#{@port}#{@path}") do |ws|
         @ws = ws
 
         @ws.on :message do |msg|
@@ -103,7 +106,7 @@ module GremlinClient
         if @response.nil?
           @response = response
         else
-          @response['result']['data'].concat response['result']['data']
+          @response['result']['data'] = deep_merge(@response['result']['data'], response['result']['data'])
           @response['result']['meta'].merge! response['result']['meta']
           @response['status'] = response['status']
         end
@@ -115,6 +118,18 @@ module GremlinClient
     end
 
     protected
+
+      def deep_merge(a, b)
+        a.merge(b) do |key, a_val, b_val|
+          if a_val.is_a?(Hash) && b_val.is_a?(Hash)
+            deep_merge(a_val, b_val)
+          elsif a_val.is_a?(Array) && b_val.is_a?(Array)
+            a_val + b_val
+          else
+            b_val
+          end
+        end
+      end
 
       def wait_connection(skip_reconnect = false)
         w_from = Time.now.to_i

@@ -6,7 +6,7 @@ require 'gremlin_client/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "gremlin_client"
-  spec.version       = GremliClient::VERSION
+  spec.version       = GremlinClient::VERSION
   spec.authors       = ["Marcelo Coraça de Freitas"]
   spec.email         = ["marcelo.freitas@finc.com"]
   spec.summary       = %q{Simple Gremlin server client for the WebSocketChannelizer}
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'websocket-client-simple', '~> 0.3'
-  spec.add_dependency 'oj', '~> 2.16'
+  spec.add_dependency 'oj'
 
   spec.add_development_dependency 'bundler', '~> 1.13'
   spec.add_development_dependency 'rake', '~> 13.0'
