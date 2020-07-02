@@ -1,7 +1,7 @@
 # Ruby Gremlin Client
 
 
-[![Build Status](https://travis-ci.org/marcelocf/gremlin_client.svg?branch=master)](https://travis-ci.org/marcelocf/gremlin_clien)
+[![Build Status](https://travis-ci.org/marcelocf/gremlin_client.svg?branch=master)](https://travis-ci.org/marcelocf/gremlin_client)
 [![Gem Version](https://badge.fury.io/rb/gremlin_client.svg)](https://badge.fury.io/rb/gremlin_client)
 ![](http://ruby-gem-downloads-badge.herokuapp.com/gremlin_client?color=brightgreen)
 [![Coverage Status](https://coveralls.io/repos/github/marcelocf/gremlin_client/badge.svg?branch=master)](https://coveralls.io/github/marcelocf/gremlin_client?branch=master)
